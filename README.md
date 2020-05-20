@@ -8,7 +8,12 @@ Arduino Nano
 
 Rain Intensity Measurement
 
+Waveshare 1.54 Inch E-Paper Display
+
+
 ## Demos
 [Rain Measurement](https://www.youtube.com/watch?v=nyFkCpdZvac)
 
 [Rain Measurement 2](https://www.youtube.com/watch?v=YlIH1ti4Vy0)
+
+[e-Paper 1](https://www.youtube.com/watch?v=OPaCF-XJhqc)
