@@ -20,7 +20,7 @@ void loop(){
 
    // from heavy rain - no rain.
    if (countval >= 35){ 
-      Serial.print("Heavy rain");
+      Serial.print("IT IS RAINING");
       digitalWrite(buzzerout, HIGH);  //raise an alert after x time
    }
 
@@ -28,7 +28,8 @@ void loop(){
       countval++; 
    }
    else {
-      digitalWrite(buzzerout, LOW)
+      Serial.print("NO RAIN");
+      digitalWrite(buzzerout, LOW);
       countval = 0;
    }
    delay(1000);
