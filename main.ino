@@ -1,4 +1,4 @@
-// Mitchell Ciupak
+//Mitchell Ciupak
 //Project Main
 
 //Includes
@@ -9,12 +9,16 @@
 
 //Macros
 int rainsense= A0; // analog sensor input pin 0
-int countval= 0; // counter value starting from 0 and goes up by 1 every second
-int buzzerout = 12; //TODO Debug
+int count= 0; // counter value starting from 0 and goes up by 1 every second
+int isCorrectScreen = 0; //Init Refresh Reduction
 
-//Constructor for AVR Arduino, copy from GxEPD_Example else
-GxIO_Class io(SPI, /*CS=*/ SS, /*DC=*/ 9, /*RST=*/ 8); // arbitrary selection of 8, 9 selected for default of GxEPD_Class
-GxEPD_Class display(io, /*RST=*/ 8, /*BUSY=*/ 7); // default selection of (9), 7
+//Constructor for AVR Arduino, Defauly from GxEPD_Class
+GxIO_Class io(SPI, /*CS=*/ SS, /*DC=*/ 9, /*RST=*/ 8);
+GxEPD_Class display(io, /*RST=*/ 8, /*BUSY=*/ 7);
+
+//Function Declorations
+void drawMain();
+void drawRain();
 
 //Init
 void setup(){
@@ -22,50 +26,65 @@ void setup(){
 
    //Prep Rain Sensor
    pinMode(rainsense, INPUT);
-   pinMode(buzzerout, OUTPUT); //TODO Debug
 
    //Prep Disp
    display.init();
    display.eraseDisplay();
-}
-
-void drawRain()
-{
-  display.setTextColor(GxEPD_BLACK);
-  display.print("IT IS RAINING");
-}
-
-void drawNoRain()
-{
-  display.setTextColor(GxEPD_BLACK);
-  display.print("IT IS NO RAINING");
+   display.drawPaged(drawMain);
 }
 
 void loop(){
-   int rainSenseReading = analogRead(rainsense);
-   Serial.println(rainSenseReading); // serial monitoring message //TODO DEBUG
-   delay(250);// rain sensing value from 0 to 1023.
+    //Measure Rain Intensity
+    int rainSenseReading = analogRead(rainsense);
+    delay(250); // rain sensing value from 0 to 1023.
 
-    //GO
-   if (countval >= 5){ 
-      Serial.print("IT IS RAINING");
-      display.drawPaged(drawRain);
-      digitalWrite(buzzerout, HIGH);  //raise an alert after x time
-   }
+    Serial.println(rainSenseReading); //TODO Debug
 
-    //Check
+    //Trigger Rain Statement
+    if(count >= 6) { //Trigger after 1 Minute (6 * 10_000)
+        Serial.print("IT IS RAINING"); //TODO Debug
+
+        //Trigger Refresh
+        if(count == 6){
+            isCorrectScreen = 0
+        }
+        
+        //Draw Page
+        if(isCorrectScreen == 0){
+            display.drawPaged(drawRain);
+        }
+    }
+    
+    //Update Rain Action
    if(rainSenseReading < 500) {
-      countval++; 
+      count++; 
    }
    else {
-      Serial.print("NO RAIN");
 
-      display.eraseDisplay();
-      display.drawPaged(drawNoRain);
+       //No Rain or Not Raining Anymore
+       Serial.print("NO RAIN"); //TODO Debug
 
-      digitalWrite(buzzerout, LOW);
-      countval = 0;
+       if(isCorrectScreen == 0){
+            display.eraseDisplay();
+            display.drawPaged(drawMain);
+       }
+
+       //Update count
+       count = 0;
    }
-   delay(1000);
 
+   delay(5000); //TODO 10000
 };
+
+
+void drawRain() {
+    isCorrectScreen = 1
+    display.setTextColor(GxEPD_BLACK);
+    display.print("THE ROCK IS WET, I THINK IT MAY BE RAINING");
+}
+
+void drawMain() {
+    isCorrectScreen = 1;
+    display.setTextColor(GxEPD_BLACK);
+    display.print("Welcome to your own personal Weather Rock, Grandma!");
+}
