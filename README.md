@@ -16,4 +16,6 @@ Waveshare 1.54 Inch E-Paper Display
 
 [Rain Measurement 2](https://www.youtube.com/watch?v=YlIH1ti4Vy0)
 
-[e-Paper 1](https://www.youtube.com/watch?v=OPaCF-XJhqc)
+[Display 1](https://www.youtube.com/watch?v=OPaCF-XJhqc)
+
+[Display 2](//https://www.youtube.com/watch?v=UBEhod2wxvE)
