@@ -8,6 +8,7 @@ void setup(){
    Serial.begin(9600);
    pinMode(rainsense, INPUT);
 }
+
 void loop(){
    int rainSenseReading = analogRead(rainsense);
    Serial.println(rainSenseReading); // serial monitoring message 
