@@ -6,6 +6,7 @@
 #include <GxGDEH0154D67/GxGDEH0154D67.h>  // 1.54" b/w
 #include <GxIO/GxIO_SPI/GxIO_SPI.h>
 #include <GxIO/GxIO.h>
+#include <Fonts/FreeMonoBold12pt7b.h>
 
 //Macros
 int rainsense= A0; // analog sensor input pin 0
@@ -79,12 +80,35 @@ void loop(){
 
 void drawRain() {
     isCorrectScreen = 1;
+
+    const char* name = "FreeMonoBold12pt7b";
+    const GFXfont* f = &FreeMonoBold12pt7b;
+    display.fillScreen(GxEPD_WHITE);
     display.setTextColor(GxEPD_BLACK);
-    display.print("THE ROCK IS WET, I THINK IT MAY BE RAINING");
+    display.setFont(f);
+    display.setCursor(0, 0);
+    display.println();
+    display.println();
+    display.println(" THE ROCK IS");
+    display.println("     WET!");
+    display.println();
+    display.println(" IT'S RAINING!");
 }
 
 void drawMain() {
     isCorrectScreen = 1;
+  
+    const char* name = "FreeMonoBold12pt7b";
+    const GFXfont* f = &FreeMonoBold12pt7b;
+    display.fillScreen(GxEPD_WHITE);
     display.setTextColor(GxEPD_BLACK);
-    display.print("Welcome to your own personal Weather Rock, Grandma!");
+    display.setFont(f);
+    display.setCursor(0, 0);
+    display.println();
+    display.println("Grandma,");
+    display.println("Welcome to The");
+    display.println("Weather Rock!");
+    display.println("         Love,");
+    display.println("      Mitchell");
+    display.println("          2020");
 }
