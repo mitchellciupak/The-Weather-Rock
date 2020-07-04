@@ -46,7 +46,7 @@ void loop(){
 
         //Trigger Refresh
         if(count == 6){
-            isCorrectScreen = 0
+            isCorrectScreen = 0;
         }
         
         //Draw Page
@@ -78,7 +78,7 @@ void loop(){
 
 
 void drawRain() {
-    isCorrectScreen = 1
+    isCorrectScreen = 1;
     display.setTextColor(GxEPD_BLACK);
     display.print("THE ROCK IS WET, I THINK IT MAY BE RAINING");
 }
