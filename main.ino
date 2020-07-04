@@ -11,7 +11,7 @@
 //Macros
 int rainsense= A0; // analog sensor input pin 0
 int count= 0; // counter value starting from 0 and goes up by 1 every second
-int isCorrectScreen = 0; //Init Refresh Reduction
+int isMain = 0; // bool main return
 
 //Constructor for AVR Arduino, Defauly from GxEPD_Class
 GxIO_Class io(SPI, /*CS=*/ SS, /*DC=*/ 9, /*RST=*/ 8);
@@ -23,7 +23,6 @@ void drawRain();
 
 //Init
 void setup(){
-   Serial.begin(9600); //TODO Debug
 
    //Prep Rain Sensor
    pinMode(rainsense, INPUT);
@@ -36,23 +35,16 @@ void setup(){
 
 void loop(){
     //Measure Rain Intensity
-    int rainSenseReading = analogRead(rainsense);
-    delay(250); // rain sensing value from 0 to 1023.
-
-    Serial.println(rainSenseReading); //TODO Debug
+    int rainSenseReading = analogRead(rainsense); //sensing value from 0 to 1023.
+    delay(250);
 
     //Trigger Rain Statement
-    if(count >= 6) { //Trigger after 1 Minute (6 * 10_000)
-        Serial.print("IT IS RAINING"); //TODO Debug
+    if(count >= 7) { //Trigger after 1 Minute (6-1 * 10_000)
 
-        //Trigger Refresh
-        if(count == 6){
-            isCorrectScreen = 0;
-        }
-        
-        //Draw Page
-        if(isCorrectScreen == 0){
+        //Trigger Event
+        if(count == 7){
             display.drawPaged(drawRain);
+            isMain = 0;
         }
     }
     
@@ -61,17 +53,15 @@ void loop(){
       count++; 
    }
    else {
+       //Not Raining, Update Count
+       count = 0;
 
-       //No Rain or Not Raining Anymore
-       Serial.print("NO RAIN"); //TODO Debug
-
-       if(isCorrectScreen == 0){
+       if(count == 0 && isMain == 0){
             display.eraseDisplay();
             display.drawPaged(drawMain);
+            isMain = 1;
        }
 
-       //Update count
-       count = 0;
    }
 
    delay(5000); //TODO 10000
@@ -79,7 +69,6 @@ void loop(){
 
 
 void drawRain() {
-    isCorrectScreen = 1;
 
     const char* name = "FreeMonoBold12pt7b";
     const GFXfont* f = &FreeMonoBold12pt7b;
@@ -96,8 +85,7 @@ void drawRain() {
 }
 
 void drawMain() {
-    isCorrectScreen = 1;
-  
+
     const char* name = "FreeMonoBold12pt7b";
     const GFXfont* f = &FreeMonoBold12pt7b;
     display.fillScreen(GxEPD_WHITE);
