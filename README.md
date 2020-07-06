@@ -10,6 +10,8 @@ Rain Intensity Measurement
 
 Waveshare 1.54 Inch E-Paper Display
 
+5V AAA Battary Compartment
+
 
 ## Demos
 [Rain Measurement](https://www.youtube.com/watch?v=nyFkCpdZvac)
