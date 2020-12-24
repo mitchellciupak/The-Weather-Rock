@@ -18,15 +18,10 @@
 Adafruit_BNO055 bno = Adafruit_BNO055(-1, 0x28);
 
 //Macros
-int isMain = 0; // bool main return
-int rainsense= A0; // analog sensor input pin 0
-int count= 0; // counter value starting from 0 and goes up by 1 every second
-
+unsigned int isMain = 0, state = 0, count = 0, soc = 100;;
 const unsigned int BATTERY_CAPACITY = 2500; //mAh
-unsigned int soc = 100; //batt percentage
 
-double rotSum = 0;
-double accelSum = 0;
+double rotSum = 0, accelSum = 0;
 
 //Constructor for AVR Arduino, Defauly from GxEPD_Class
 GxIO_Class io(SPI, /*CS=*/ SS, /*DC=*/ 9, /*RST=*/ 8);
@@ -34,6 +29,7 @@ GxEPD_Class display(io, /*RST=*/ 8, /*BUSY=*/ 7);
 
 
 //Function Declorations
+void drawInit();
 void drawMain();
 void drawWindy();
 void drawRain();
@@ -53,7 +49,7 @@ void setup(){
    bno.begin();
 
    //Prep Rain Sensor
-   pinMode(rainsense, INPUT);
+   pinMode(A0, INPUT);
 
    //Prep Disp
    display.init();
@@ -69,28 +65,27 @@ void loop(){
       isMain = 0;
     }
 
-    //IMU
-    imu::Vector<3> rot = bno.getVector(Adafruit_BNO055::VECTOR_GYROSCOPE); // rad/s
-    imu::Vector<3> accel = bno.getVector(Adafruit_BNO055::VECTOR_ACCELEROMETER); // m/s^2
+    //Measure IMU
+//    imu::Vector<3> rot = bno.getVector(Adafruit_BNO055::VECTOR_GYROSCOPE); // rad/s
+//    imu::Vector<3> accel = bno.getVector(Adafruit_BNO055::VECTOR_ACCELEROMETER); // m/s^2
+//
+//    rotSum += rot.x() + rot.y() + rot.z(); //over 10 for 1min
+//    accelSum += accel.x() + accel.y() + accel.z(); //over 13 for 1min
+//
+//    if(rotSum > 70 && isMain == 1){ //over 10 for 1min
+//      display.drawPaged(drawWindy);
+//      isMain = 0;
+//    }
+//
+//    if(accelSum > 91 && isMain == 1){ //over 13 for 1min
+//      display.drawPaged(drawQuake);
+//      isMain = 0;      
+//    }
 
-    rotSum += rot.x() + rot.y() + rot.z(); //over 10 for 1min
-    accelSum += accel.x() + accel.y() + accel.z(); //over 13 for 1min
-    
     //Measure Rain Intensity
-    int rainSenseReading = analogRead(rainsense); //sensing value from 0 to 1023.
+    int rainSenseReading = analogRead(A0); //sensing value from 0 to 1023.
     delay(250);
-
-    if(rotSum > 70 && isMain == 1){ //over 10 for 1min
-      display.drawPaged(drawWindy);
-      isMain = 0;
-    }
-
-    if(accelSum > 91 && isMain == 1){ //over 13 for 1min
-      display.drawPaged(drawQuake);
-      isMain = 0;      
-    }
-
-    //Trigger Rain Statement
+    
     if(count >= 7) { //Trigger after 1 Minute (6-1 * 10_000)
 
         //Trigger Event
@@ -103,49 +98,44 @@ void loop(){
             isMain = 0;
         }
     }
-    
-    //Update Action
-   if(rot.x() + rot.y() + rot.z() < 10 && isMain == 0){
-      rotSum = 0;
-      display.eraseDisplay();
-      display.drawPaged(drawMain);
-      isMain = 1;
-   }
-   if(accel.x() + accel.y() + accel.z() < 13 && isMain == 0){
-      accelSum = 0;
-      display.eraseDisplay();
-      display.drawPaged(drawMain);
-      isMain = 1;
 
-   }
-   if(rainSenseReading < 500) {
+    if(rainSenseReading < 500) {
       count++; 
    }
-   else {
-       //Not Raining, Update Count
-       count = 0;
+    
+    //Update Action (Only change if all elements are not ocurring)
+    if(isMain == 0) {
+      
+//     if(accel.x() + accel.y() + accel.z() < 13){
+//      accelSum = 0;
+//      state += 1;  
+//     }
+//
+//     if(rot.x() + rot.y() + rot.z() < 10){
+//      rotSum = 0;
+//      state += 1;  
+//     }
 
-       if(count == 0 && isMain == 0){
-            display.eraseDisplay();
-            display.drawPaged(drawMain);
-            isMain = 1;
-       }
-
-   }
+     if(rainSenseReading > 500){
+      count = 0;
+      state += 1; 
+     }
+     
+     if(state == 3){
+      display.eraseDisplay();
+      display.drawPaged(drawMain);
+      isMain = 1;
+      state = 0;
+     }
+     
+    }
 
    delay(5000); //TODO 10000
 };
 
 void drawLowBatt() {
 
-    const char* name = "FreeMonoBold12pt7b";
-    const GFXfont* f = &FreeMonoBold12pt7b;
-    display.fillScreen(GxEPD_WHITE);
-    display.setTextColor(GxEPD_BLACK);
-    display.setFont(f);
-    display.setCursor(0, 0);
-    display.println();
-    display.println();//
+    drawInit();
     display.println(" MY BATTERY ");
     display.println("  IS LOW!");
     display.println();
@@ -154,14 +144,7 @@ void drawLowBatt() {
 
 void drawWindy() {
 
-    const char* name = "FreeMonoBold12pt7b";
-    const GFXfont* f = &FreeMonoBold12pt7b;
-    display.fillScreen(GxEPD_WHITE);
-    display.setTextColor(GxEPD_BLACK);
-    display.setFont(f);
-    display.setCursor(0, 0);
-    display.println();
-    display.println();
+    drawInit();
     display.println(" THE ROCK IS");
     display.println("  TILTED!");
     display.println();
@@ -170,14 +153,7 @@ void drawWindy() {
 
 void drawRain() {
 
-    const char* name = "FreeMonoBold12pt7b";
-    const GFXfont* f = &FreeMonoBold12pt7b;
-    display.fillScreen(GxEPD_WHITE);
-    display.setTextColor(GxEPD_BLACK);
-    display.setFont(f);
-    display.setCursor(0, 0);
-    display.println();
-    display.println();
+    drawInit();
     display.println(" THE ROCK IS");
     display.println("     WET!");
     display.println();
@@ -186,14 +162,7 @@ void drawRain() {
 
 void drawSnow() {
 
-    const char* name = "FreeMonoBold12pt7b";
-    const GFXfont* f = &FreeMonoBold12pt7b;
-    display.fillScreen(GxEPD_WHITE);
-    display.setTextColor(GxEPD_BLACK);
-    display.setFont(f);
-    display.setCursor(0, 0);
-    display.println();
-    display.println();
+    drawInit();
     display.println(" THE ROCK IS");
     display.println("COLD&WET!");
     display.println();
@@ -201,15 +170,7 @@ void drawSnow() {
 }
 
 void drawQuake() {
-
-    const char* name = "FreeMonoBold12pt7b";
-    const GFXfont* f = &FreeMonoBold12pt7b;
-    display.fillScreen(GxEPD_WHITE);
-    display.setTextColor(GxEPD_BLACK);
-    display.setFont(f);
-    display.setCursor(0, 0);
-    display.println();
-    display.println();
+    drawInit();
     display.println(" THE ROCK IS");
     display.println(" BOUNCING");
     display.println();
@@ -217,18 +178,22 @@ void drawQuake() {
 }
 
 void drawMain() {
+    drawInit();
+    display.println("Grandma,");
+    display.println("MERRY ROCKMAS ");
+    display.println("2020!         ");
+    display.println("         Love,");
+    display.println("      Mitchell");
+    display.println("          2020");
+}
 
+void drawInit(){
     const char* name = "FreeMonoBold12pt7b";
     const GFXfont* f = &FreeMonoBold12pt7b;
     display.fillScreen(GxEPD_WHITE);
     display.setTextColor(GxEPD_BLACK);
     display.setFont(f);
-    display.setCursor(0, 0);
+    display.setCursor(0, 0);  
     display.println();
-    display.println("Grandma,");
-    display.println("Welcome to The"); //TODO Merry Christmas
-    display.println("Weather Rock!");
-    display.println("         Love,");
-    display.println("      Mitchell");
-    display.println("          2020");
+    display.println();
 }
