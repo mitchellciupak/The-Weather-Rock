@@ -1,7 +1,8 @@
 //Mitchell Ciupak
 //Project Main
 
-//Includes
+//Include
+#include <SparkFunBQ27441.h>
 #include <GxEPD.h>
 #include <GxGDEH0154D67/GxGDEH0154D67.h>  // 1.54" b/w
 #include <GxIO/GxIO_SPI/GxIO_SPI.h>
@@ -10,19 +11,27 @@
 
 //Macros
 int rainsense= A0; // analog sensor input pin 0
+unsigned int soc = 100; //batt percentage
 int count= 0; // counter value starting from 0 and goes up by 1 every second
 int isMain = 0; // bool main return
+const unsigned int BATTERY_CAPACITY = 2500; //mAh
 
 //Constructor for AVR Arduino, Defauly from GxEPD_Class
 GxIO_Class io(SPI, /*CS=*/ SS, /*DC=*/ 9, /*RST=*/ 8);
 GxEPD_Class display(io, /*RST=*/ 8, /*BUSY=*/ 7);
 
 //Function Declorations
+void setupBQ27441(void);
 void drawMain();
 void drawRain();
+void drawBatt();
+
 
 //Init
 void setup(){
+
+   //Prep Battery Babysitter
+   setupBQ27441();
 
    //Prep Rain Sensor
    pinMode(rainsense, INPUT);
@@ -34,6 +43,12 @@ void setup(){
 }
 
 void loop(){
+    //Batt
+//    if(lipo.soc() < 10) {
+//      display.drawPaged(drawLowBatt);
+//      isMain = 0;
+//    }
+  
     //Measure Rain Intensity
     int rainSenseReading = analogRead(rainsense); //sensing value from 0 to 1023.
     delay(250);
@@ -67,6 +82,29 @@ void loop(){
    delay(5000); //TODO 10000
 };
 
+void setupBQ27441(void) {
+  if (!lipo.begin()) {
+    Serial.println("Error with BQ27441.");
+  }
+//  Serial.println("Connected to BQ27441!");
+  lipo.setCapacity(BATTERY_CAPACITY);
+}
+
+void drawLowBatt() {
+
+    const char* name = "FreeMonoBold12pt7b";
+    const GFXfont* f = &FreeMonoBold12pt7b;
+    display.fillScreen(GxEPD_WHITE);
+    display.setTextColor(GxEPD_BLACK);
+    display.setFont(f);
+    display.setCursor(0, 0);
+    display.println();
+    display.println();//
+    display.println(" MY BATTERY ");
+    display.println("  IS LOW!");
+    display.println();
+    display.println(" PLEASE CHARGE");
+}
 
 void drawRain() {
 
@@ -92,9 +130,9 @@ void drawMain() {
     display.setTextColor(GxEPD_BLACK);
     display.setFont(f);
     display.setCursor(0, 0);
-    display.println();
+    display.println("Welcome to " + String(lipo.soc()));
     display.println("Grandma,");
-    display.println("Welcome to The");
+    display.println("Welcome to The"); //Merry Christmas
     display.println("Weather Rock!");
     display.println("         Love,");
     display.println("      Mitchell");
