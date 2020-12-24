@@ -15,7 +15,9 @@ Rain Intensity Measurement
 
 Waveshare 1.54 Inch E-Paper Display
 
-9V AAA Battary Compartment
+[bq27441 Battery Babysitter](https://learn.sparkfun.com/tutorials/battery-babysitter-hookup-guide/all#bq27441-arduino-library)
+
+2500mAh Li-Ion Poly Battery
 
 
 ## Demos

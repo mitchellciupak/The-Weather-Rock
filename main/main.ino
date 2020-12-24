@@ -44,10 +44,10 @@ void setup(){
 
 void loop(){
     //Batt
-//    if(lipo.soc() < 10) {
-//      display.drawPaged(drawLowBatt);
-//      isMain = 0;
-//    }
+    if(lipo.soc() < 10) {
+      display.drawPaged(drawLowBatt);
+      isMain = 0;
+    }
   
     //Measure Rain Intensity
     int rainSenseReading = analogRead(rainsense); //sensing value from 0 to 1023.
@@ -83,10 +83,7 @@ void loop(){
 };
 
 void setupBQ27441(void) {
-  if (!lipo.begin()) {
-    Serial.println("Error with BQ27441.");
-  }
-//  Serial.println("Connected to BQ27441!");
+  lipo.begin();
   lipo.setCapacity(BATTERY_CAPACITY);
 }
 
@@ -130,9 +127,9 @@ void drawMain() {
     display.setTextColor(GxEPD_BLACK);
     display.setFont(f);
     display.setCursor(0, 0);
-    display.println("Welcome to " + String(lipo.soc()));
+    display.println();
     display.println("Grandma,");
-    display.println("Welcome to The"); //Merry Christmas
+    display.println("Welcome to The"); //TODO Merry Christmas
     display.println("Weather Rock!");
     display.println("         Love,");
     display.println("      Mitchell");
