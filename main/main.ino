@@ -9,6 +9,12 @@
 #include <GxIO/GxIO.h>
 #include <Fonts/FreeMonoBold12pt7b.h>
 
+//Includes for BNO055
+#include <Wire.h>
+#include <Adafruit_Sensor.h>
+#include <Adafruit_BNO055.h>
+#include <utility/imumaths.h>
+
 //Macros
 int rainsense= A0; // analog sensor input pin 0
 unsigned int soc = 100; //batt percentage
